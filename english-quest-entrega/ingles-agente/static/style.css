@@ -1,0 +1,160 @@
+:root {
+  --bg: #fef6e4;
+  --card: #ffffff;
+  --primary: #4361ee;
+  --ok: #2ec4b6;
+  --bad: #e63946;
+  --text: #22223b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(160deg, #fef6e4, #cbe4f9);
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+}
+
+.app {
+  width: 100%;
+  max-width: 480px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+h1 {
+  font-size: 2rem;
+  margin: 0 0 12px;
+}
+
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  background: var(--primary);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.badge.fuente {
+  background: #8338ec;
+}
+
+.card {
+  position: relative;
+  background: var(--card);
+  border-radius: 24px;
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+.level-up-toast,
+.level-down-toast {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 14px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: white;
+  transform: translateY(-120%);
+  transition: transform 0.35s ease;
+  z-index: 5;
+}
+
+.level-up-toast {
+  background: linear-gradient(90deg, #ffb703, #fb8500);
+}
+
+.level-down-toast {
+  background: linear-gradient(90deg, #8338ec, #3a86ff);
+}
+
+.level-up-toast.show,
+.level-down-toast.show {
+  transform: translateY(0);
+}
+
+.badge.nivel-pulso {
+  animation: pulso 0.6s ease;
+}
+
+@keyframes pulso {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+.emoji {
+  font-size: 4rem;
+  margin-bottom: 12px;
+}
+
+.prompt {
+  font-size: 1.3rem;
+  font-weight: bold;
+  min-height: 60px;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.option-btn {
+  padding: 14px;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 14px;
+  background: #edf2fb;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.2s ease;
+}
+
+.option-btn:hover {
+  transform: scale(1.03);
+  background: #dbe4ff;
+}
+
+.option-btn.correct {
+  background: var(--ok);
+  color: white;
+}
+
+.option-btn.incorrect {
+  background: var(--bad);
+  color: white;
+}
+
+.feedback {
+  min-height: 30px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-top: 16px;
+}
+
+footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.85rem;
+  color: #555;
+}
