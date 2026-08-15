@@ -1,0 +1,178 @@
+:root {
+  --bg: #fef6e4;
+  --card: #ffffff;
+  --primary: #4361ee;
+  --ok: #2ec4b6;
+  --bad: #e63946;
+  --text: #22223b;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(160deg, #fef6e4, #cbe4f9);
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+.app { width: 100%; max-width: 480px; }
+
+.pantalla { display: none; }
+.pantalla.activa { display: block; }
+
+/* --- Pantalla de inicio --- */
+#pantallaInicio { text-align: center; padding-top: 12vh; }
+
+h1 { font-size: 2.1rem; margin: 0 0 8px; }
+.subtitulo { color: #555; margin-bottom: 20px; }
+
+.progreso {
+  background: white;
+  border-radius: 16px;
+  padding: 12px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+.progreso-item { padding: 6px 0; font-size: 0.95rem; }
+
+.botones-idioma {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.btn-idioma {
+  flex: 1;
+  max-width: 160px;
+  padding: 24px 12px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 20px;
+  background: white;
+  color: var(--text);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+.btn-idioma:active { transform: scale(0.96); }
+
+.link-chico {
+  background: none;
+  border: none;
+  color: #888;
+  text-decoration: underline;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+/* --- Pantalla de juego --- */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.btn-volver, .btn-sonido {
+  border: none;
+  background: white;
+  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  font-size: 1.3rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.stats { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.badge {
+  background: var(--primary);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.mascota {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.mascota-avatar { font-size: 2.4rem; }
+.mascota-globo {
+  background: white;
+  border-radius: 16px;
+  padding: 8px 14px;
+  font-size: 0.9rem;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  flex: 1;
+}
+
+.card {
+  position: relative;
+  background: var(--card);
+  border-radius: 24px;
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+.level-up-toast, .level-down-toast {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  padding: 14px;
+  font-size: 1.05rem;
+  font-weight: bold;
+  color: white;
+  transform: translateY(-120%);
+  transition: transform 0.35s ease;
+  z-index: 5;
+}
+.level-up-toast { background: linear-gradient(90deg, #ffb703, #fb8500); }
+.level-down-toast { background: linear-gradient(90deg, #8338ec, #3a86ff); }
+.level-up-toast.show, .level-down-toast.show { transform: translateY(0); }
+
+.badge.nivel-pulso { animation: pulso 0.6s ease; }
+@keyframes pulso {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+.emoji { font-size: 4rem; margin-bottom: 12px; }
+
+.prompt { font-size: 1.2rem; font-weight: bold; min-height: 60px; }
+
+.options { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+
+.option-btn {
+  padding: 14px;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 14px;
+  background: #edf2fb;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.2s ease;
+}
+.option-btn:active { transform: scale(0.97); }
+.option-btn.correct { background: var(--ok); color: white; }
+.option-btn.incorrect { background: var(--bad); color: white; }
+
+.feedback { min-height: 30px; font-size: 1rem; font-weight: bold; margin-top: 16px; }

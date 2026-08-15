@@ -1,0 +1,15 @@
+{
+  "name": "Idiomas Quest",
+  "short_name": "Idiomas Quest",
+  "description": "Juego para practicar inglés e italiano, con un agente que se adapta a cómo vas jugando.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fef6e4",
+  "theme_color": "#4361ee",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

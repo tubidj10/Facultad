@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Idiomas Quest</title>
+<meta name="theme-color" content="#4361ee" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="icons/icon.svg" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app">
+
+  <section id="pantallaInicio" class="pantalla activa">
+    <h1>Idiomas Quest 🦉</h1>
+    <p class="subtitulo">Elegí un idioma para practicar jugando</p>
+
+    <div class="progreso" id="progresoInicio"></div>
+
+    <div class="botones-idioma">
+      <button id="btnJugarEn" class="btn-idioma">🇬🇧<br>English</button>
+      <button id="btnJugarIt" class="btn-idioma">🇮🇹<br>Italiano</button>
+    </div>
+
+    <button id="btnReiniciar" class="link-chico">Reiniciar progreso</button>
+  </section>
+
+  <section id="pantallaJuego" class="pantalla">
+    <header>
+      <button id="btnVolver" class="btn-volver">←</button>
+      <div class="stats">
+        <span class="badge" id="nivelBadge">Nivel <b id="nivel">1</b></span>
+        <span class="badge">Puntos <b id="score">0</b></span>
+      </div>
+      <button id="btnSonido" class="btn-sonido">🔊</button>
+    </header>
+
+    <div class="mascota">
+      <span class="mascota-avatar">🦉</span>
+      <div class="mascota-globo" id="mascotaTexto">¡Vamos que podés!</div>
+    </div>
+
+    <main class="card">
+      <div class="level-up-toast" id="levelUpToast">¡Subiste de nivel! 🎉🚀</div>
+      <div class="level-down-toast" id="levelDownToast">Repasemos un poco 💪</div>
+      <div class="emoji" id="emoji">🎮</div>
+      <p class="prompt" id="prompt">Cargando...</p>
+      <div class="options" id="opciones"></div>
+      <p class="feedback" id="feedback"></p>
+    </main>
+  </section>
+
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

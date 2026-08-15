@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#4361ee"/>
+  <circle cx="256" cy="230" r="150" fill="#fef6e4"/>
+  <circle cx="205" cy="215" r="34" fill="#22223b"/>
+  <circle cx="307" cy="215" r="34" fill="#22223b"/>
+  <circle cx="205" cy="215" r="12" fill="#fef6e4"/>
+  <circle cx="307" cy="215" r="12" fill="#fef6e4"/>
+  <path d="M256 245 L232 300 L280 300 Z" fill="#ffb703"/>
+  <path d="M140 200 L90 150 L150 140 Z" fill="#4361ee"/>
+  <path d="M372 200 L422 150 L362 140 Z" fill="#4361ee"/>
+  <text x="256" y="430" font-size="70" text-anchor="middle" font-family="Arial, sans-serif" fill="#fef6e4">A+I</text>
+</svg>

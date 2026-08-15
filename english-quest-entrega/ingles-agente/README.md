@@ -1,155 +1,161 @@
-# English Quest 🚀 — agente tutor de inglés para chicos
+# Idiomas Quest 🦉 — agente tutor de idiomas para chicos (PWA para Android)
 
-Proyecto de la materia "Creación de agentes de IA". Un juego web chico
-(single page, backend en Flask) para que mi hijo de 8-10 años practique
-vocabulario de inglés, con un agente que decide qué preguntarle y con qué
-dificultad según cómo va jugando.
+Proyecto de la materia "Creación de agentes de IA". Juego para que mi hijo
+de 9 años practique vocabulario de **inglés e italiano** desde su celular
+Android, con un agente que decide qué preguntarle y con qué dificultad
+según cómo va jugando.
 
-## Qué hace el agente y por qué
+Es una evolución del proyecto anterior de esta misma materia
+(`english-quest-entrega/`, un tutor de inglés con backend Flask + API de
+Claude). Para esta entrega cambié dos cosas a propósito, explicadas abajo:
+el idioma (ahora el nene elige entre inglés e italiano) y la plataforma
+(ahora es una app que se instala en el teléfono del chico, sin depender de
+una computadora con un servidor corriendo).
 
-El agente sigue el loop clásico **percibir → decidir → actuar**, separado en
-capas bien distintas dentro de `app.py`:
+## Por qué una PWA y no una app "nativa" ni el backend anterior
 
-1. **Percibir**: cada respuesta del chico (correcta/incorrecta, qué palabra,
-   qué tema) actualiza un estado de sesión: nivel actual, racha de aciertos,
-   racha de errores, palabras ya vistas y un contador de "palabras débiles"
-   (las que más erró).
-2. **Decidir** (`decidir_politica`): una política simple pero explícita —
-   3 aciertos seguidos suben de nivel, 2 errores seguidos bajan de nivel y
-   fuerzan que la próxima pregunta repase la palabra más débil en vez de
-   presentar vocabulario nuevo. Esto es lo que hace que el juego se sienta
-   "adaptativo" y no una lista fija de preguntas.
-3. **Actuar** (`generar_pregunta`): un generador de contenido arma la
-   próxima pregunta siguiendo la decisión del paso anterior. Tiene **dos
-   motores intercambiables**:
-   - `generar_pregunta_claude`: le pide a la API de Claude (modelo
-     `claude-3-5-haiku`) que genere la pregunta en JSON, pasándole el nivel,
-     si toca repasar, las palabras débiles y las ya vistas.
-   - `generar_pregunta_local`: arma la misma pregunta combinando un banco de
-     vocabulario propio (animales, colores, comida, números, familia,
-     escuela, clima, emociones) con plantillas de oración simples.
+El requisito nuevo era "algo que ande en el celular Android de mi hijo".
+Evalué tres caminos:
 
-   El motor se elige solo según si hay una `ANTHROPIC_API_KEY` configurada.
-   Si Claude falla por lo que sea (sin key, sin internet, error al parsear
-   el JSON, rate limit), el agente cae automáticamente al motor local — el
-   juego nunca se rompe por un problema de la API externa.
+- **Repetir el backend Flask** (como el proyecto anterior): funciona, pero
+  el celular del nene tendría que apuntar a un servidor corriendo en algún
+  lado (mi notebook, o un hosting) — no es viable para que juegue solo,
+  offline, cuando quiera.
+- **App nativa Android / Flutter**: requiere compilar un `.apk`, firmarlo e
+  instalarlo, con un entorno de desarrollo (Android Studio o Flutter SDK)
+  que no tenía disponible para esta entrega.
+- **PWA (Progressive Web App)**: una página web que Chrome en Android deja
+  "Agregar a la pantalla de inicio" como si fuera una app instalada (ícono
+  propio, pantalla completa, sin barra del navegador), funciona sin
+  conexión gracias a un *service worker*, y no necesita compilar nada.
 
-La separación importa: la **decisión** (qué enseñar y por qué) es
-independiente de la **generación de contenido** (quién redacta la
-pregunta). Es la misma idea que separar política de herramienta en un
-agente más complejo: la política no cambia si mañana reemplazo Claude por
-otro modelo, o si un día no tengo conexión a internet.
+Elegí la PWA: es la opción que de verdad iba a terminar instalada y
+funcionando en el teléfono del chico dentro del tiempo de la entrega.
 
-## Cómo se construyó (proceso real, con Claude como agente)
+## Por qué lógica adaptativa simple y no un LLM esta vez
 
-Esto es exactamente cómo fue la iteración, sin maquillar:
+El proyecto anterior sí usaba la API de Claude para generar preguntas.
+Para esta app decidí **no** llamar a ningún modelo de lenguaje en tiempo
+real, por tres motivos concretos:
 
-1. Le pedí ideas a Claude para un proyecto de "una tarde". Me tiró tres
-   opciones ligadas a mi trabajo (auditoría de manifests de Kubernetes,
-   FinOps sobre Terraform, generador de runbooks), pero elegí construir algo
-   distinto: un juego para que mi hijo practique inglés — uno de los
-   ejemplos válidos de la consigna ("el juego para estudiar").
-2. Claude preguntó edad y nivel del chico (8-10 años, ya sabe algo) y si
-   quería un juego con contenido fijo o con IA generando preguntas en vivo.
-   Elegí la opción con IA real, para que el proyecto usara de verdad una
-   API de modelo de lenguaje y no fuera solo un quiz estático.
-3. Intenté sacar una API key de Anthropic desde la consola, pero mi cuenta
-   es la empresarial de BYMA y no me dejó generarla ahí. Le conté esto a
-   Claude.
-4. En vez de bloquear el proyecto por eso, Claude propuso una arquitectura
-   con **dos motores intercambiables** (Claude / banco local), para que el
-   juego funcione igual sin key y quede listo para usar la API real apenas
-   consiga una key personal. Esto terminó siendo una mejora real de diseño
-   (resiliencia ante fallas de un servicio externo), no un parche.
-5. Para subir el repo a GitHub, generé un token personal y se lo pasé a
-   Claude para que lo subiera él. Probó tres caminos distintos: `gh auth
-   login` con el token, crear el repo por la API REST de GitHub, y por
-   último un `git push` directo ya con el repo vacío creado a mano. Los tres
-   fallaron con el mismo motivo de fondo: el entorno donde corre Claude
-   tiene un proxy de git/GitHub que solo deja pasar operaciones sobre repos
-   "autorizados de antemano para la sesión" (pensado para otra integración,
-   Claude Code + GitHub Actions), y bloquea cualquier repo nuevo aunque el
-   token sea válido — el mensaje del proxy fue literal: *"access denied by
-   the git proxy: ... is not in this session's authorized repository set"*.
-   Terminamos resolviendo esto subiendo el proyecto manualmente por la
-   interfaz web de GitHub (crear repo vacío + arrastrar los archivos), en
-   vez de la subida automática que había pedido originalmente.
-6. Antes de entregar, Claude corrió pruebas locales: levantó el server
-   Flask, probó `/api/start` y `/api/answer` por HTTP, y corrió un script
-   chico que verifica en aislamiento la política de nivel (sube con 3
-   aciertos, baja y prioriza repaso con 2 errores) y el generador local
-   (siempre devuelve 3 opciones válidas y prioriza la palabra más débil
-   cuando corresponde).
-7. Insistí varias veces en que Claude subiera el repo automáticamente por
-   otros medios (un token nuevo, controlar mi navegador Chrome). Cada
-   intento chocó con un límite distinto y verificable (mismo proxy de
-   GitHub, y la herramienta de control de Chrome resultó ser para Mac, no
-   para mi Windows). Terminé instalando GitHub Desktop y publicando el
-   repo yo mismo con mi sesión ya logueada — la parte de "un solo click por
-   entrega futura" sí quedó resuelta para la próxima vez.
-8. Al correr el proyecto en mi notebook de trabajo, `pip install` falló
-   porque mi entorno corporativo redirige todo el tráfico a un proxy/mirror
-   interno (`pfcajavip.cajval...`) que no estaba disponible en ese momento.
-   Se resolvió con `--proxy ""` para ese comando puntual, sin tocar ninguna
-   configuración persistente de la notebook (a propósito: preferí no tocar
-   nada de red en un equipo corporativo).
-9. Le pedí a Claude dos mejoras más: un aviso visual al subir de nivel, y
-   conectar la IA real. Lo primero se agregó y se probó con un test
-   automático (fuerza una racha de aciertos y verifica que el flag
-   `level_up` se dispare en el nivel correcto). Lo segundo quedó
-   definitivamente pendiente: probé sacar una key personal de Anthropic
-   además de la empresarial, y tampoco pude — dos intentos, dos bloqueos
-   distintos, cero keys disponibles al momento de entregar.
+1. **Privacidad de un menor**: no quería que las respuestas de mi hijo
+   viajaran a un servicio externo.
+2. **Debe andar sin conexión**: un celular de un chico de 9 años no
+   siempre tiene wifi (viaje, patio, sin datos). Una PWA 100% local
+   funciona siempre; una que dependa de una API se rompe sin internet.
+3. **El agente no necesita "creatividad" para esta tarea**: el valor del
+   agente acá no está en redactar texto nuevo, está en **decidir qué
+   palabra mostrar y cuándo subir la dificultad** — eso se resuelve bien
+   con una política simple y auditable, sin necesidad de un modelo de
+   lenguaje.
 
-## Cómo correrlo
+Esto no descarta la IA generativa: quedó documentado como trabajo futuro
+(ver más abajo) enchufar un motor tipo el del proyecto anterior para que
+el propio agente redacte oraciones nuevas.
 
-```bash
-pip install -r requirements.txt
-cp .env.example .env
-# opcional: completar ANTHROPIC_API_KEY en .env si ya tenés una key personal
-python3 app.py
-```
+## Diseño del agente (PEAS)
 
-Abrir `http://localhost:5000` en el navegador. Sin key configurada, el
-juego funciona igual en modo local (se ve un badge "Modo local" en vez de
-"IA en vivo").
+| | |
+|---|---|
+| **Performance measure** (qué se busca) | Que el chico practique palabras nuevas sin frustrarse: mantenerlo en una dificultad donde acierta la mayoría de las veces, pero sigue viendo vocabulario nuevo. |
+| **Environment** (entorno) | El chico y sus respuestas (correcta/incorrecta) a cada pregunta que el agente le presenta. |
+| **Actuators** (cómo actúa) | Elige la próxima palabra, arma la pregunta y las opciones, sube/baja el nivel, muestra el emoji y feedback de la mascota, y pronuncia la palabra en voz alta (`SpeechSynthesis`). |
+| **Sensors** (qué percibe) | Si la respuesta fue correcta o no, qué palabra era, y el historial guardado por palabra (cuántas veces se erró, en qué "caja" de repaso está). |
+
+Es un **agente basado en utilidad con una política de aprendizaje simple**
+(no usa una red neuronal ni RL de verdad, pero sí ajusta su comportamiento
+futuro en base a la experiencia acumulada del jugador — es la parte
+"aprende" del agente).
+
+### El loop percibir → decidir → actuar (en `app.js`)
+
+1. **Percibir** (`registrarRespuesta`): por cada respuesta actualiza el
+   estado guardado: nivel, racha de aciertos/errores, y por cada palabra
+   su **caja Leitner** (1 a 5: sube un escalón si la acertó, vuelve a la
+   caja 1 si la erró) y un contador de errores.
+2. **Decidir** (`decidirPolitica`): política explícita e igual de simple
+   que la del proyecto anterior — 3 aciertos seguidos suben de nivel
+   (hasta el nivel 5), 2 errores seguidos bajan de nivel y fuerzan que la
+   próxima pregunta sea de repaso de la palabra más débil en vez de
+   presentar contenido nuevo.
+3. **Actuar** (`elegirPalabra` + `generarPregunta`): a diferencia del
+   proyecto anterior (que sorteaba la categoría al azar entre las no
+   vistas), acá agregué un **sorteo pesado por caja Leitner**: las
+   palabras en caja 1 (recién falladas, o nunca vistas) tienen mucho más
+   chance de aparecer que las de caja 5 (ya dominadas), en vez de un
+   sorteo parejo. Esto es una mejora real sobre la versión anterior: hace
+   que el repaso espaciado sea automático y gradual, no solo un "si erraste
+   2 veces seguidas, repasá ya".
+
+El estado (nivel, puntaje, y la caja/errores de cada palabra) se guarda en
+`localStorage`, separado por idioma. Esto resuelve una limitación que
+había quedado pendiente en el proyecto anterior ("no hay persistencia
+entre sesiones"): acá el progreso vive en el propio teléfono del chico y
+sobrevive a cerrar la app.
+
+## Vocabulario y niveles
+
+8 categorías (animales, colores, comida, números, familia, escuela, clima,
+emociones), ~50 palabras en total, con traducción a inglés e italiano
+(`data.js`). Nivel 1-2: pregunta directa ("¿Cómo se dice 'perro' en
+italiano?"). Nivel 3 en adelante: oración corta para completar, igual que
+en el proyecto anterior.
+
+## Cómo instalarlo en un celular Android
+
+1. Subir esta carpeta a un hosting estático (GitHub Pages, Netlify,
+   Vercel, o simplemente `python3 -m http.server` en la misma red wifi que
+   el celular).
+2. Abrir la URL en **Chrome** desde el celular.
+3. Tocar el menú (⋮) → **"Agregar a pantalla de inicio"** / **"Instalar
+   app"**.
+4. Queda un ícono propio ("Idiomas Quest") que abre la app en pantalla
+   completa, sin necesidad de conexión a internet después de la primera
+   carga (el *service worker* en `sw.js` cachea todos los archivos).
+
+Para probarlo en una computadora mientras se desarrolla: `python3 -m
+http.server 8000` parado en esta carpeta, y abrir `http://localhost:8000`.
+
+## Pruebas realizadas
+
+- Chequeo de sintaxis de los tres archivos JS (`node --check`) y del
+  `manifest.webmanifest` (JSON válido).
+- Prueba funcional de punta a punta en navegador (Chromium): pantalla de
+  inicio, selección de idioma, secuencia de preguntas y respuestas en
+  ambos idiomas, suba/baja de nivel según racha, persistencia del
+  progreso en `localStorage` al volver a la pantalla de inicio, y that el
+  botón de reiniciar progreso borra el estado guardado.
+- Revisión manual de que las opciones de respuesta y el texto pronunciado
+  correspondan al idioma elegido (no se mezclan palabras de inglés en el
+  modo italiano ni viceversa).
 
 ## Qué falta / reflexión
 
-- **No pude probar el motor de Claude con una key real** — lo intenté por
-  dos vías y las dos quedaron bloqueadas: mi cuenta de Anthropic es la
-  empresarial de BYMA y no permite generar keys personales desde la
-  consola, e intentar resolverlo con una cuenta personal tampoco funcionó.
-  El código del motor `generar_pregunta_claude` está escrito y probado en
-  su lógica de parseo (prompt, parseo del JSON, validación de campos,
-  fallback automático si algo falla), pero la llamada real a la API en
-  producción queda pendiente de validar el día que consiga una key. El
-  juego que se entrega funciona en modo local, con la política de nivel y
-  repaso 100% probada (ver sección de pruebas más abajo).
-- **La subida a GitHub no fue automática como planeaba** — asumí que un
-  agente con acceso a shell podía simplemente crear y pushear un repo con
-  un token mío, y no es así: el entorno donde corre el agente tiene la red
-  restringida por diseño (una medida de seguridad razonable, no un bug). Es
-  algo que no tenía en la cabeza antes de este proyecto: que "el agente
-  tiene una terminal" no implica "el agente tiene salida de red abierta a
-  cualquier servicio".
-- **El feedback del agente es local (frases fijas), no generado por IA** —
-  decidí no usar una llamada a Claude para el feedback de cada respuesta,
-  para no duplicar llamadas a la API por cada interacción (costo/latencia)
-  cuando el valor agregado de IA ahí es bajo. La generación de contenido
-  "creativo" (la pregunta en sí) es donde más aporta un modelo de lenguaje.
-- **No hay persistencia entre sesiones** — el progreso vive en la cookie de
-  sesión del navegador. Si mi hijo juega desde otro dispositivo o borra
-  cookies, arranca de cero. Para un uso real más allá de esta tarea,
-  agregaría una base de datos chica (SQLite alcanza) para guardar el
-  progreso por usuario.
-- **Aprendizaje principal**: separar "decidir" de "actuar" en el diseño del
-  agente resultó mucho más valioso de lo que esperaba — no fue solo prolijo,
-  fue lo que me permitió seguir construyendo (y probando) el proyecto
-  incluso cuando la pieza de IA externa no estaba disponible.
+- **No hay una integración de IA generativa en esta versión** — a
+  diferencia del proyecto anterior, acá el agente decide con una política
+  fija y auditable, sin llamar a un LLM. Es una decisión de diseño (ver
+  arriba), no una limitación técnica: la arquitectura separa igual
+  "decidir" (`decidirPolitica`, `elegirPalabra`) de "generar contenido"
+  (`generarPregunta`), así que en el futuro se podría reemplazar
+  `generarPregunta` por una llamada a un modelo de lenguaje (como se hizo
+  en `english-quest-entrega/`) sin tocar la política de nivel/repaso.
+- **El pronunciado por voz depende de las voces instaladas en el
+  celular** — `SpeechSynthesis` usa las voces del sistema Android; en
+  algunos equipos la voz en italiano puede sonar peor que la de inglés, o
+  no estar instalada (Android ofrece descargarla desde Ajustes > Idiomas
+  > Texto a voz).
+- **Vocabulario fijo, no generado** — son ~50 palabras curadas a mano. Para
+  un uso más largo en el tiempo, ampliaría el banco o (de nuevo)
+  conectaría un LLM para generar variaciones de oraciones nuevas sobre las
+  mismas palabras.
+- **Sin cuenta de usuario ni sincronización entre dispositivos** — el
+  progreso vive en el `localStorage` de ese celular puntual; si se borra
+  la caché del navegador o se cambia de teléfono, se pierde. Para un uso
+  real más allá de esta tarea, se podría exportar/importar el progreso a
+  un archivo o sincronizarlo con una cuenta.
 
 ## Entrega
 
-Construido íntegramente con Claude como agente (yo no escribí código,
-solo describí lo que quería e iteré sobre lo que Claude proponía, según la
-consigna de la materia).
+Construido íntegramente con Claude como agente (yo describí lo que
+quería para mi hijo e iteré sobre lo que Claude proponía), según la
+consigna de la materia.
