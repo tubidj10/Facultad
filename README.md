@@ -76,10 +76,6 @@ de solo inglés con backend Flask + API de Claude).
 
 ## Qué aprendí
 
-*(Borrador — te lo dejo armado, pero convendría que lo revises y lo
-completes con tus propias palabras antes de entregar, ya que esta sección
-tiene que ser tu reflexión honesta.)*
-
 Aprendí que un agente de IA puede construir y probar un proyecto de punta a
 punta solo, pero que su capacidad de actuar sobre servicios externos (como
 GitHub) depende de permisos que a veces no están bajo mi control ni el del
