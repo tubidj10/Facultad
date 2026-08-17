@@ -5,19 +5,21 @@ de 9 años practique vocabulario de **inglés e italiano** desde su celular
 Android, con un agente que decide qué preguntarle y con qué dificultad
 según cómo va jugando.
 
-Es una evolución del proyecto anterior de esta misma materia
-(`english-quest-entrega/`, un tutor de inglés con backend Flask + API de
-Claude). Para esta entrega cambié dos cosas a propósito, explicadas abajo:
-el idioma (ahora el nene elige entre inglés e italiano) y la plataforma
-(ahora es una app que se instala en el teléfono del chico, sin depender de
-una computadora con un servidor corriendo).
+Esta es la **segunda entrega** de este proyecto. La primera versión (un
+tutor de inglés solamente, con backend Flask + API de Claude) vive en el
+historial de este mismo repositorio — commits `version1` y `entrega` —
+y en esta entrega la reemplacé por esta versión nueva, en la misma
+carpeta. Cambié dos cosas a propósito, explicadas abajo: el idioma (ahora
+el nene elige entre inglés e italiano) y la plataforma (ahora es una app
+que se instala en el teléfono del chico, sin depender de una computadora
+con un servidor corriendo).
 
 ## Por qué una PWA y no una app "nativa" ni el backend anterior
 
 El requisito nuevo era "algo que ande en el celular Android de mi hijo".
 Evalué tres caminos:
 
-- **Repetir el backend Flask** (como el proyecto anterior): funciona, pero
+- **Repetir el backend Flask** (como la versión anterior): funciona, pero
   el celular del nene tendría que apuntar a un servidor corriendo en algún
   lado (mi notebook, o un hosting) — no es viable para que juegue solo,
   offline, cuando quiera.
@@ -34,7 +36,7 @@ funcionando en el teléfono del chico dentro del tiempo de la entrega.
 
 ## Por qué lógica adaptativa simple y no un LLM esta vez
 
-El proyecto anterior sí usaba la API de Claude para generar preguntas.
+La versión anterior sí usaba la API de Claude para generar preguntas.
 Para esta app decidí **no** llamar a ningún modelo de lenguaje en tiempo
 real, por tres motivos concretos:
 
@@ -50,7 +52,7 @@ real, por tres motivos concretos:
    lenguaje.
 
 Esto no descarta la IA generativa: quedó documentado como trabajo futuro
-(ver más abajo) enchufar un motor tipo el del proyecto anterior para que
+(ver más abajo) enchufar un motor tipo el de la versión anterior para que
 el propio agente redacte oraciones nuevas.
 
 ## Diseño del agente (PEAS)
@@ -74,12 +76,12 @@ futuro en base a la experiencia acumulada del jugador — es la parte
    su **caja Leitner** (1 a 5: sube un escalón si la acertó, vuelve a la
    caja 1 si la erró) y un contador de errores.
 2. **Decidir** (`decidirPolitica`): política explícita e igual de simple
-   que la del proyecto anterior — 3 aciertos seguidos suben de nivel
+   que la de la versión anterior — 3 aciertos seguidos suben de nivel
    (hasta el nivel 5), 2 errores seguidos bajan de nivel y fuerzan que la
    próxima pregunta sea de repaso de la palabra más débil en vez de
    presentar contenido nuevo.
-3. **Actuar** (`elegirPalabra` + `generarPregunta`): a diferencia del
-   proyecto anterior (que sorteaba la categoría al azar entre las no
+3. **Actuar** (`elegirPalabra` + `generarPregunta`): a diferencia de la
+   versión anterior (que sorteaba la categoría al azar entre las no
    vistas), acá agregué un **sorteo pesado por caja Leitner**: las
    palabras en caja 1 (recién falladas, o nunca vistas) tienen mucho más
    chance de aparecer que las de caja 5 (ya dominadas), en vez de un
@@ -89,7 +91,7 @@ futuro en base a la experiencia acumulada del jugador — es la parte
 
 El estado (nivel, puntaje, y la caja/errores de cada palabra) se guarda en
 `localStorage`, separado por idioma. Esto resuelve una limitación que
-había quedado pendiente en el proyecto anterior ("no hay persistencia
+había quedado pendiente en la versión anterior ("no hay persistencia
 entre sesiones"): acá el progreso vive en el propio teléfono del chico y
 sobrevive a cerrar la app.
 
@@ -99,7 +101,7 @@ sobrevive a cerrar la app.
 emociones), ~50 palabras en total, con traducción a inglés e italiano
 (`data.js`). Nivel 1-2: pregunta directa ("¿Cómo se dice 'perro' en
 italiano?"). Nivel 3 en adelante: oración corta para completar, igual que
-en el proyecto anterior.
+en la versión anterior.
 
 ## Cómo instalarlo en un celular Android
 
@@ -123,22 +125,60 @@ http.server 8000` parado en esta carpeta, y abrir `http://localhost:8000`.
 - Prueba funcional de punta a punta en navegador (Chromium): pantalla de
   inicio, selección de idioma, secuencia de preguntas y respuestas en
   ambos idiomas, suba/baja de nivel según racha, persistencia del
-  progreso en `localStorage` al volver a la pantalla de inicio, y that el
+  progreso en `localStorage` al volver a la pantalla de inicio, y que el
   botón de reiniciar progreso borra el estado guardado.
 - Revisión manual de que las opciones de respuesta y el texto pronunciado
   correspondan al idioma elegido (no se mezclan palabras de inglés en el
   modo italiano ni viceversa).
+- La prueba automática encontró un problema real de usabilidad (los
+  botones de "volver" y "sonido" eran de 40px, chicos para el dedo de un
+  nene de 9 años) y se corrigió antes de esta entrega (ahora 52px).
+
+## Cómo se construyó esta entrega (proceso real, con Claude como agente)
+
+1. Partiendo de la entrega anterior (tutor de inglés con Flask + API de
+   Claude), la consigna nueva era que corriera en el celular Android de mi
+   hijo y que fuera bilingüe. Evalué las opciones con Claude (backend vs.
+   app nativa vs. PWA) y elegimos PWA + lógica local, por las razones
+   explicadas más arriba.
+2. Claude construyó el proyecto completo (`app.js`, `data.js`,
+   `index.html`, `styles.css`, `sw.js`, manifest, ícono) y lo probó de
+   punta a punta en un navegador Chromium headless con viewport de
+   celular, con Playwright: pantalla de inicio, juego completo en los dos
+   idiomas, persistencia en `localStorage`, 0 errores de consola. La
+   prueba encontró el problema de los botones chicos mencionado arriba, y
+   se corrigió antes de entregar.
+3. Al intentar subir el commit a GitHub automáticamente, la sesión de
+   Claude se topó con dos bloqueos de permisos distintos (no de red):
+   `git push` devolvió 403 por política de la organización, y la
+   herramienta de la API de GitHub devolvió `403 Resource not accessible
+   by integration` al intentar crear la rama. Revisamos juntos los
+   permisos en GitHub (`Installed GitHub Apps` / `Authorized OAuth Apps`
+   de mi cuenta) y no había ningún selector de permisos por repositorio
+   para cambiar del lado de GitHub — la cuenta usa una autorización tipo
+   OAuth sin ese control expuesto.
+4. Para no perder la entrega esperando a resolver el permiso, Claude armó
+   un `.zip` del proyecto y lo mandó por el chat; lo descargué y lo subí
+   yo mismo a mano con GitHub Desktop.
+5. Al subirlo, sin querer reemplacé directamente la carpeta de la entrega
+   anterior (`english-quest-entrega/ingles-agente/`) en vez de crear una
+   carpeta nueva al lado. Decidimos dejarlo así (es una evolución directa
+   del mismo proyecto, no uno paralelo) y ajustar este README para que no
+   quedara hablando de "el proyecto anterior" como si fuera otra carpeta
+   viva — la versión vieja sigue disponible en el historial de git
+   (commits `version1` y `entrega`) si hace falta consultarla.
 
 ## Qué falta / reflexión
 
 - **No hay una integración de IA generativa en esta versión** — a
-  diferencia del proyecto anterior, acá el agente decide con una política
+  diferencia de la versión anterior, acá el agente decide con una política
   fija y auditable, sin llamar a un LLM. Es una decisión de diseño (ver
   arriba), no una limitación técnica: la arquitectura separa igual
   "decidir" (`decidirPolitica`, `elegirPalabra`) de "generar contenido"
   (`generarPregunta`), así que en el futuro se podría reemplazar
   `generarPregunta` por una llamada a un modelo de lenguaje (como se hizo
-  en `english-quest-entrega/`) sin tocar la política de nivel/repaso.
+  en la versión anterior, ver commits `version1`/`entrega`) sin tocar la
+  política de nivel/repaso.
 - **El pronunciado por voz depende de las voces instaladas en el
   celular** — `SpeechSynthesis` usa las voces del sistema Android; en
   algunos equipos la voz en italiano puede sonar peor que la de inglés, o
